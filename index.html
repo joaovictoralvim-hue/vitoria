@@ -132,6 +132,9 @@
             white-space: pre-line !important;
             display: block;
             text-align: center;
+            line-height: 1.05 !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
         #homeVideo { opacity:0.55; }
         #playButton, #backButton { padding:10px 12px; font-size:0.8rem; min-height:44px; bottom: max(12px, env(safe-area-inset-bottom, 12px)); }
@@ -173,7 +176,7 @@
 <body>
 
 <div id="homePage">
-    <video id="homeVideo" src="265815.mp4" autoplay muted loop playsinline aria-hidden="true"></video>
+    <video id="homeVideo" src="265815.mp4" muted loop playsinline aria-hidden="true"></video>
     <div class="categories-row">
         <div class="category" id="musicCategory">Músicas</div>
         <div class="category" id="dedicationCategory">Dedicatória</div>
@@ -366,7 +369,7 @@
         lyricsData.forEach((pair, index) => {
             if (pair.en === '' && pair.pt === '') {
                 const emptyLine = document.createElement('div');
-                emptyLine.style.height = '0.8rem';
+                emptyLine.style.height = window.matchMedia('(max-width:480px)').matches ? '0.18rem' : '0.8rem';
                 container.appendChild(emptyLine);
             } else {
                 const line = document.createElement('div');
@@ -574,8 +577,11 @@
         homePage.style.display = 'flex';
         currentTab = null;
 
-        // resume home preview video (muted autoplay should allow play, catch errors)
-        if (homeVideo) { try { homeVideo.play(); } catch(e) {} }
+        // resume home preview video only on non-touch devices
+        try {
+            const isTouchBack = ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints;
+            if (homeVideo && !isTouchBack) { try { homeVideo.play(); } catch(e) {} }
+        } catch(e) {}
 
         // Reseta abas visuais
         document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
@@ -748,6 +754,13 @@
                 viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0, user-scalable=yes');
             }
         }
+
+        // Só toca o vídeo de preview automaticamente em dispositivos não-touch
+        try {
+            if (!isTouch && homeVideo) {
+                try { homeVideo.play(); } catch(e) {}
+            }
+        } catch(e) {}
 
         // Se quiser que a intro apareça **apenas** uma vez por sessão (não persistente), substitua o uso de localStorage por uma variável simples.
         // Atualmente usamos localStorage para que a intro apareça apenas uma vez mesmo se o usuário recarregar a página.
