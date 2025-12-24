@@ -120,6 +120,19 @@
         #songTitle { font-size:0.85rem; display:block; margin-bottom:12px; }
         #backgroundImage { background-size:cover; }
         #backgroundImageFade { background-size:cover; }
+
+        /* Normaliza espaçamento/quebra de texto em iPhone para ficar igual ao desktop */
+        #lyrics, #lyricsContainer, .lyric-line, .lyric-text {
+            -webkit-text-size-adjust: 100%;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+            word-spacing: normal !important;
+            letter-spacing: normal !important;
+            hyphens: none !important;
+            white-space: pre-line !important;
+            display: block;
+            text-align: center;
+        }
         #homeVideo { opacity:0.55; }
         #playButton, #backButton { padding:10px 12px; font-size:0.8rem; min-height:44px; bottom: max(12px, env(safe-area-inset-bottom, 12px)); }
         #playButton { left:8px; }

@@ -65,6 +65,18 @@
         #lyricsContainer{font-size:0.8rem;line-height:1.4rem}
         #songTitle{font-size:0.85rem;display:block;margin-bottom:12px}
         #backgroundImage { background-size:cover; }
+        /* Normaliza espaçamento/quebra de texto em iPhone para ficar igual ao desktop */
+        #lyrics, #lyricsContainer, .lyric-line, .lyric-text {
+            -webkit-text-size-adjust: 100%;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+            word-spacing: normal !important;
+            letter-spacing: normal !important;
+            hyphens: none !important;
+            white-space: pre-line !important;
+            display: block;
+            text-align: center;
+        }
         #responseButtons{flex-direction:column;gap:8px;margin-top:14px;align-items:stretch}
         .response-btn{width:100%;min-height:44px;padding:10px 12px;font-size:0.8rem;justify-content:center}
         #backButton{padding:10px 12px;font-size:0.8rem;min-height:44px;bottom:max(12px,env(safe-area-inset-bottom,12px));right:8px}
