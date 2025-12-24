@@ -136,6 +136,9 @@
             margin: 0 !important;
             padding: 0 !important;
         }
+        /* stanza spacing: compact intra-line, larger between stanzas */
+        .stanza .lyric-line { margin: 0; padding: 0; line-height: 1.02 !important; }
+        .stanza + .stanza { margin-top: 0.6rem; }
         #homeVideo { opacity:0.55; }
         #playButton, #backButton { padding:10px 12px; font-size:0.8rem; min-height:44px; bottom: max(12px, env(safe-area-inset-bottom, 12px)); }
         #playButton { left:8px; }
@@ -176,7 +179,7 @@
 <body>
 
 <div id="homePage">
-    <video id="homeVideo" src="265815.mp4" muted loop playsinline aria-hidden="true"></video>
+    <video id="homeVideo" src="265815.mp4" autoplay muted loop playsinline aria-hidden="true"></video>
     <div class="categories-row">
         <div class="category" id="musicCategory">Músicas</div>
         <div class="category" id="dedicationCategory">Dedicatória</div>
@@ -366,12 +369,25 @@
             container.innerHTML = '<p style="color: #ccc; font-style: italic;">Letras em breve...</p>';
             return;
         }
+        // Group lines into stanzas: consecutive non-empty lines become one .stanza
+        let stanza = null;
         lyricsData.forEach((pair, index) => {
-            if (pair.en === '' && pair.pt === '') {
-                const emptyLine = document.createElement('div');
-                emptyLine.style.height = window.matchMedia('(max-width:480px)').matches ? '0.18rem' : '0.8rem';
-                container.appendChild(emptyLine);
+            const isEmpty = pair.en === '' && pair.pt === '';
+            if (isEmpty) {
+                if (stanza) {
+                    container.appendChild(stanza);
+                    stanza = null;
+                } else {
+                    // extra small gap if multiple empties
+                    const gap = document.createElement('div');
+                    gap.style.height = window.matchMedia('(max-width:480px)').matches ? '0.18rem' : '0.8rem';
+                    container.appendChild(gap);
+                }
             } else {
+                if (!stanza) {
+                    stanza = document.createElement('div');
+                    stanza.className = 'stanza';
+                }
                 const line = document.createElement('div');
                 line.className = 'lyric-line';
                 line.dataset.index = index;
@@ -379,9 +395,10 @@
                 textSpan.className = 'lyric-text';
                 textSpan.textContent = currentLanguage === 'en' ? pair.en : pair.pt;
                 line.appendChild(textSpan);
-                container.appendChild(line);
+                stanza.appendChild(line);
             }
         });
+        if (stanza) container.appendChild(stanza);
     }
 
     function toggleAllLanguages() {
@@ -577,11 +594,8 @@
         homePage.style.display = 'flex';
         currentTab = null;
 
-        // resume home preview video only on non-touch devices
-        try {
-            const isTouchBack = ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints;
-            if (homeVideo && !isTouchBack) { try { homeVideo.play(); } catch(e) {} }
-        } catch(e) {}
+        // Resume home preview video (allow autoplay on iPhone as requested)
+        try { if (homeVideo) { try { homeVideo.play(); } catch(e) {} } } catch(e) {}
 
         // Reseta abas visuais
         document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
@@ -755,12 +769,8 @@
             }
         }
 
-        // Só toca o vídeo de preview automaticamente em dispositivos não-touch
-        try {
-            if (!isTouch && homeVideo) {
-                try { homeVideo.play(); } catch(e) {}
-            }
-        } catch(e) {}
+        // Tenta tocar o vídeo de preview automaticamente (inclui iPhone)
+        try { if (homeVideo) { try { homeVideo.play(); } catch(e) {} } } catch(e) {}
 
         // Se quiser que a intro apareça **apenas** uma vez por sessão (não persistente), substitua o uso de localStorage por uma variável simples.
         // Atualmente usamos localStorage para que a intro apareça apenas uma vez mesmo se o usuário recarregar a página.

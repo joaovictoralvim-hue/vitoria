@@ -80,6 +80,8 @@
             margin: 0 !important;
             padding: 0 !important;
         }
+        .stanza .lyric-line { margin: 0; padding: 0; line-height: 1.02 !important; }
+        .stanza + .stanza { margin-top: 0.6rem; }
         #responseButtons{flex-direction:column;gap:8px;margin-top:14px;align-items:stretch}
         .response-btn{width:100%;min-height:44px;padding:10px 12px;font-size:0.8rem;justify-content:center}
         #backButton{padding:10px 12px;font-size:0.8rem;min-height:44px;bottom:max(12px,env(safe-area-inset-bottom,12px));right:8px}
@@ -190,21 +192,34 @@
     function renderDedication(lines) {
         const container = document.getElementById('lyricsContainer');
         container.innerHTML = '';
+        // Group into stanzas for proper stanza layout on mobile
+        let stanza = null;
         lines.forEach(line => {
-            if (line === '') {
-                const emptyLine = document.createElement('div');
-                emptyLine.style.height = window.matchMedia('(max-width:480px)').matches ? '0.18rem' : '0.8rem';
-                container.appendChild(emptyLine);
+            const isEmpty = line === '';
+            if (isEmpty) {
+                if (stanza) {
+                    container.appendChild(stanza);
+                    stanza = null;
+                } else {
+                    const gap = document.createElement('div');
+                    gap.style.height = window.matchMedia('(max-width:480px)').matches ? '0.18rem' : '0.8rem';
+                    container.appendChild(gap);
+                }
             } else {
+                if (!stanza) {
+                    stanza = document.createElement('div');
+                    stanza.className = 'stanza';
+                }
                 const div = document.createElement('div');
                 div.className = 'lyric-line';
                 const span = document.createElement('span');
                 span.className = 'lyric-text';
                 span.textContent = line;
                 div.appendChild(span);
-                container.appendChild(div);
+                stanza.appendChild(div);
             }
         });
+        if (stanza) container.appendChild(stanza);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
