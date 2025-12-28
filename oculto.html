@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Oculto — Para Você ❤️</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ink+Free&display=swap" rel="stylesheet">
+  <style>
+    :root{ --bg:#000; --accent:#ff4d6d; --yellow:#ffff00 }
+    /* keep hidden until validation completes (prevents brief redirect flash) */
+    html{ visibility:hidden; height:100%; }
+    html.touch-device { -webkit-text-size-adjust:100%; }
+    body{ font-family:'Ink Free','Segoe UI', 'Helvetica Neue', Arial, 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif; margin:0; padding:0; background:radial-gradient(circle at top, #1a1a1a, #000); color:#fff; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+    .page { width:100%; max-width:1000px; padding:24px; box-sizing:border-box; position:relative; text-align:center }
+    .back-icon{ position:fixed; right:16px; top:16px; width:48px; height:48px; display:inline-flex; align-items:center; justify-content:center; background:#111; border:1px solid #444; border-radius:10px; text-decoration:none; color:#fff; z-index:100; touch-action:manipulation }
+    .back-icon:active{ transform:translateY(1px) }
+    .text { font-size:2.4rem; line-height:1.05; font-weight:700; text-shadow:0 0 18px rgba(255,80,120,0.8); }
+    .heart { position:fixed; width:20px; height:20px; background:var(--accent); transform:rotate(45deg); opacity:0.9; pointer-events:none; z-index:50 }
+    .heart::before, .heart::after{ content:""; position:absolute; width:20px; height:20px; background:var(--accent); border-radius:50% }
+    .heart::before{ top:-10px; left:0 } .heart::after{ left:-10px; top:0 }
+
+    /* responsive */
+    @media (max-width:900px){ .text{ font-size:1.8rem } .back-icon{ width:46px;height:46px } }
+    @media (max-width:480px){ .text{ font-size:1.25rem } .back-icon{ right:12px;top:12px;width:44px;height:44px } }
+
+    /* safe-area adjustments */
+    .back-icon{ right: calc(16px + env(safe-area-inset-right)); top: calc(16px + env(safe-area-inset-top)); }
+    body{ padding-bottom: env(safe-area-inset-bottom); }
+  </style>
+  <script>
+    // validate early using localStorage; show page only if allowed
+    (function(){
+      try {
+        var allowed = localStorage.getItem('allowOculto');
+        if (!allowed) {
+          window.location.replace('dedicatoria.html');
+          return;
+        }
+        localStorage.removeItem('allowOculto');
+        // mark visible after layout is ready
+        function show(){ document.documentElement.style.visibility = 'visible'; }
+        if (document.readyState === 'complete' || document.readyState === 'interactive') show(); else document.addEventListener('DOMContentLoaded', show);
+      } catch(e) {
+        try { window.location.replace('dedicatoria.html'); } catch(_) {}
+      }
+    })();
+  </script>
+</head>
+<body>
+  <a class="back-icon" href="dedicatoria.html" title="Voltar à dedicatória" aria-label="Voltar">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 20v-6H4v-4h6V4l8 8-8 8z" fill="#fff" />
+    </svg>
+  </a>
+
+  <main class="page" role="main">
+    <div class="text">Eu te amo muito,<br>obrigado por aceitar ❤️, PS: Moscow Mule Venceu</div>
+  </main>
+
+  <script>
+    // simple, throttled heart animation — keeps emojis and visual effect but limits DOM churn on mobile
+    (function(){
+      var maxHearts = 24;
+      var hearts = 0;
+      function createHeart(){
+        if (hearts >= maxHearts) return;
+        hearts++;
+        var heart = document.createElement('div');
+        heart.className = 'heart';
+        var size = Math.floor(Math.random()*18)+14; // 14-32px
+        heart.style.width = size + 'px';
+        heart.style.height = size + 'px';
+        heart.style.left = (Math.random()*100) + 'vw';
+        heart.style.bottom = '-20px';
+        var dur = (Math.random()*3 + 4).toFixed(2) + 's';
+        heart.style.transition = 'transform ' + dur + ' linear, opacity ' + dur + ' linear, bottom ' + dur + ' linear';
+        document.body.appendChild(heart);
+        // force layout then animate
+        requestAnimationFrame(function(){
+          heart.style.transform = 'translateY(-110vh) rotate(45deg)';
+          heart.style.opacity = '0';
+        });
+        // remove after duration
+        setTimeout(function(){ heart.remove(); hearts--; }, (parseFloat(dur)*1000)+200);
+      }
+
+      // spawn hearts at a conservative rate on mobile, faster on desktop
+      var interval = (('ontouchstart' in window) || navigator.maxTouchPoints > 0) ? 600 : 300;
+      var spawn = setInterval(createHeart, interval);
+      // stop spawning when page hidden to save battery
+      document.addEventListener('visibilitychange', function(){ if (document.hidden) { clearInterval(spawn); } });
+    })();
+  </script>
+</body>
+</html>
